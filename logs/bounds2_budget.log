@@ -1,0 +1,5 @@
+11:50:52 ordinary optimum at N_c 16: L 3.8514e-03 nmax 2.51
+12:03:31 relaxed ordinary {'g': np.float64(0.609), 'kappa': np.float64(0.137), 'gamma': np.float64(0.583), 'omega': np.float64(1.244), 'omega_q': np.float64(1.986), 'eps': np.float64(2.042)} L 3.0646e-03 nmax 3.66
+12:14:03 squeezing from [0. 0. 0.] phi_d 0.00: [ 0.     0.208 -0.027] L 2.9374e-03 (4.1%) nmax 3.68
+12:32:28 squeezing from [ 0.     0.01  -3.142] phi_d 1.57: [ 0.     0.027 -3.141] L 3.0519e-03 (0.4%) nmax 3.66
+12:34:30 N_c 20: ordinary 3.0538e-03, squeezed 2.9267e-03 (4.2%)

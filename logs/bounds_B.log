@@ -1,0 +1,2 @@
+10:06:44 nce sanity g 0.118 -> 0.118, drive re-tuned: L 3.0438e-02 (old refab 3.0447e-02, old refab+sq 3.0413e-02)
+10:43:15 nce ORDINARY wide {'g': np.float64(0.02), 'kappa': np.float64(1.285), 'gamma': np.float64(0.484), 'omega': np.float64(0.711), 'omega_q': np.float64(1.485), 'eps': np.float64(0.031)} L 2.5511e-02 (500: 2.5585e-02; old 3.0447e-02) nmax 0.00 min face dist 0.001

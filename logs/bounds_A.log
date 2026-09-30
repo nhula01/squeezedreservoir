@@ -1,0 +1,2 @@
+10:06:47 narma sanity g 1.200 -> 1.235, drive re-tuned: L 2.2847e-03 (old refab 2.2082e-03, old refab+sq 1.7204e-03)
+10:43:24 narma ORDINARY wide {'g': np.float64(0.303), 'kappa': np.float64(0.117), 'gamma': np.float64(0.081), 'omega': np.float64(2.871), 'omega_q': np.float64(0.001), 'eps': np.float64(0.01)} L 1.7029e-03 (500: 1.8707e-03; old 2.2082e-03) nmax 0.00 min face dist 0.000

@@ -1,0 +1,15 @@
+10:49:47 laser refs (meas L, rel L): tuned base 7.2567e+01 7.1691e+01 | tuned sq 6.4928e+01 6.3793e+01 | old refab 5.2086e+01 2.8754e+01 | old refab+sq 4.8388e+01 2.6158e+01
+11:00:52 laser ORDINARY {'g': np.float64(0.8779), 'kappa': np.float64(0.6321), 'gamma': np.float64(0.1643), 'omega': np.float64(2.1842), 'omega_q': np.float64(0.3346), 'eps': np.float64(0.6662)} L 2.2807e+01 (300: 2.7383e+01) nmax 0.252 faces []
+11:05:21 laser SEQUENTIAL [ 0.     0.187 -0.919] phi_d 0.00 L 2.7383e+01 -> 2.6225e+01 (4.2%; vs ordinary -15.0%) nmax 0.22
+11:11:53 laser MATCHED [ 0.     0.    -3.142] phi_d 1.57 L 2.2807e+01 -> 2.2807e+01 (0.0%)
+11:17:15 laser MAPPED 2.7030e+01, re-optimized 2.3148e+01 (sequential 2.6225e+01)
+11:28:14 laser JOINT {'g': np.float64(1.0044), 'kappa': np.float64(0.9993), 'gamma': np.float64(0.0411), 'omega': np.float64(2.3377), 'omega_q': np.float64(0.3966), 'eps': np.float64(0.7174)} sq [ 0.047  0.048 -2.815  0.015] L 2.3537e+01 (vs ordinary -3.2%) nmax 0.21
+11:28:40 laser Nc checks: ord [22.80659486] seq [26.22524722] mat [22.80659486] joint [23.53706758] | relative objective at the optima (ord, seq, joint): [21.92263174 23.96907315 22.44634681]
+11:28:50 nce refs (meas L, rel L): tuned base 2.0290e-01 2.0284e-01 | tuned sq 7.0620e-02 6.8886e-02 | old refab 3.7820e-02 3.0447e-02 | old refab+sq 3.7989e-02 3.0413e-02
+11:39:30 nce ORDINARY {'g': np.float64(0.0332), 'kappa': np.float64(1.2992), 'gamma': np.float64(0.3982), 'omega': np.float64(0.7082), 'omega_q': np.float64(1.6667), 'eps': np.float64(0.6188)} L 2.5511e-02 (300: 2.7651e-02) nmax 0.497 faces []
+11:45:16 nce SEQUENTIAL [ 0.     0.286 -2.231] phi_d 0.00 L 2.7651e-02 -> 2.7644e-02 (0.0%; vs ordinary -8.4%) nmax 0.74
+11:55:01 nce MATCHED [ 0.495  0.5   -3.142] phi_d 0.00 L 2.5511e-02 -> 2.5473e-02 (0.1%)
+12:00:21 nce MAPPED 2.7647e-02, re-optimized 2.5579e-02 (sequential 2.7644e-02)
+12:26:43 nce JOINT {'g': np.float64(0.0658), 'kappa': np.float64(1.4355), 'gamma': np.float64(0.371), 'omega': np.float64(0.7338), 'omega_q': np.float64(1.6734), 'eps': np.float64(0.8447)} sq [ 0.032  0.042 -2.203  0.438] L 2.3753e-02 (vs ordinary 6.9%) nmax 0.80
+12:28:38 nce Nc checks: ord [0.02551134] seq [0.02764503] mat [0.02547332] joint [0.02375347] | relative objective at the optima (ord, seq, joint): [0.02549286 0.0276451  0.02375125]
+12:28:38 done bounds2 ['laser', 'nce']

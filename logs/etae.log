@@ -1,0 +1,16 @@
+10:07:52 mg eta_e 0.1 gain vs N_rep: 1e+03:-1% 1e+04:-4% 1e+05:1% 1e+06:-0% 1e+07:-0% 1e+08:-1% clean 1% srel(1e6) sq 0.139
+10:07:52 mg eta_e 0.3 gain vs N_rep: 1e+03:1% 1e+04:-1% 1e+05:0% 1e+06:-1% 1e+07:0% 1e+08:-1% clean 1% srel(1e6) sq 0.131
+10:07:52 mg eta_e 0.5 gain vs N_rep: 1e+03:1% 1e+04:-2% 1e+05:-0% 1e+06:0% 1e+07:0% 1e+08:-1% clean 1% srel(1e6) sq 0.131
+10:07:59 narma eta_e 0.1 gain vs N_rep: 1e+03:9% 1e+04:12% 1e+05:15% 1e+06:12% 1e+07:24% 1e+08:29% clean 28% srel(1e6) sq 0.226
+10:07:59 narma eta_e 0.3 gain vs N_rep: 1e+03:9% 1e+04:11% 1e+05:11% 1e+06:14% 1e+07:25% 1e+08:29% clean 28% srel(1e6) sq 0.131
+10:07:59 narma eta_e 0.5 gain vs N_rep: 1e+03:6% 1e+04:10% 1e+05:10% 1e+06:18% 1e+07:27% 1e+08:29% clean 28% srel(1e6) sq 0.102
+10:08:05 lorenz eta_e 0.1 gain vs N_rep: 1e+03:3% 1e+04:-0% 1e+05:-3% 1e+06:3% 1e+07:11% 1e+08:17% clean 24% srel(1e6) sq 0.051
+10:08:05 lorenz eta_e 0.3 gain vs N_rep: 1e+03:2% 1e+04:-1% 1e+05:-4% 1e+06:4% 1e+07:16% 1e+08:18% clean 24% srel(1e6) sq 0.031
+10:08:05 lorenz eta_e 0.5 gain vs N_rep: 1e+03:-2% 1e+04:-1% 1e+05:2% 1e+06:5% 1e+07:12% 1e+08:18% clean 24% srel(1e6) sq 0.024
+10:08:12 nce eta_e 0.1 gain vs N_rep: 1e+03:-58% 1e+04:-47% 1e+05:8% 1e+06:33% 1e+07:57% 1e+08:64% clean 66% srel(1e6) sq 0.058
+10:08:12 nce eta_e 0.3 gain vs N_rep: 1e+03:-84% 1e+04:-28% 1e+05:21% 1e+06:47% 1e+07:62% 1e+08:65% clean 66% srel(1e6) sq 0.040
+10:08:12 nce eta_e 0.5 gain vs N_rep: 1e+03:-89% 1e+04:-13% 1e+05:23% 1e+06:51% 1e+07:63% 1e+08:66% clean 66% srel(1e6) sq 0.032
+10:08:18 laser eta_e 0.1 gain vs N_rep: 1e+03:-9% 1e+04:-5% 1e+05:-2% 1e+06:-5% 1e+07:-3% 1e+08:6% clean 11% srel(1e6) sq 0.050
+10:08:18 laser eta_e 0.3 gain vs N_rep: 1e+03:-7% 1e+04:-6% 1e+05:-0% 1e+06:-5% 1e+07:-2% 1e+08:10% clean 11% srel(1e6) sq 0.038
+10:08:18 laser eta_e 0.5 gain vs N_rep: 1e+03:-7% 1e+04:-4% 1e+05:-3% 1e+06:-5% 1e+07:4% 1e+08:10% clean 11% srel(1e6) sq 0.034
+10:08:18 done etae

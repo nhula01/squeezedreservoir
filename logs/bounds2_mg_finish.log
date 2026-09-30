@@ -1,0 +1,4 @@
+12:57:22 mg ORDINARY {'g': np.float64(0.9706), 'kappa': np.float64(0.1053), 'gamma': np.float64(0.0895), 'omega': np.float64(2.4781), 'omega_q': np.float64(1.7155), 'eps': np.float64(1.503)} L 7.2637e-04 (300: 2.4765e-03) nmax 0.662 faces []
+12:57:22 mg JOINT {'g': np.float64(0.421), 'kappa': np.float64(0.1791), 'gamma': np.float64(0.0027), 'omega': np.float64(0.1564), 'omega_q': np.float64(4.8513), 'eps': np.float64(0.205)} sq [0.328 0.049 1.057 2.383] L 1.1820e-03 (vs ordinary -62.7%) nmax 2.48
+12:58:06 mg Nc checks: ord [0.00072638] seq [0.00242074] mat [0.0007262] joint [0.00140666 0.00144736] | relative objective at the optima (ord, seq, joint): [0.00066378 0.0013758  0.00105703]
+12:58:06 done bounds2 ['mg']
