@@ -480,6 +480,78 @@ def sme_numbers():
     axs[0].legend(frameon=False, fontsize=5)
     fig.savefig(os.path.join(FIG, 'figS_sme.pdf'), bbox_inches='tight'); plt.close(fig)
 
+def hard_rows():
+    """Difficulty ladders (rev_hard.py, rev_hard_conv.py, rev_hard_mg20b.py) with level 0 from rev_bounds2: per level the best
+    ordinary device found by any search, the squeezing gain searched on that device, and the best squeezed device found by any
+    search relative to it (all at the checked cutoff, measurement-aware objective)."""
+    from rev_hard import LADDER, ols10
+    from rev_common import TASKS
+    fam = [('lorenz', 'Lorenz-63', 'horizon', [(2, 'lorenz'), (5, 'lorenz5'), (10, 'lorenz10')]),
+           ('mg', 'Mackey--Glass', 'horizon', [(10, 'mg'), (20, 'mg20'), (40, 'mg40')]),
+           ('nce', 'channel eq.', 'delay', [(2, 'nce'), (4, 'nce4'), (6, 'nce6')]),
+           ('narma', 'NARMA10', '', [(10, 'narma')]), ('laser', 'Santa Fe laser', '', [(1, 'laser')])]
+    c = lambda a: float(a[-1][0])
+    rows = []
+    for key, nm_, par, levels in fam:
+        for lev, tag in levels:
+            if tag in TASKS:
+                d, q = _bd2(tag), _sqf(tag)
+                if d is None or q is None: continue
+                ords = [(c(d['chk_ord']), d['ord_best'][11])]; jl = ld(f'rev_bounds2_{tag}_jointlocal.npz')
+                if jl is not None: ords.append((c(jl['chk']), jl['best'][11]))
+                sqs = [c(q['chk']), c(d['chk_joint'])]
+                on_best = pc(c(q['chk']), c(q['chk0'])); task = TASKS[tag]; evals = 506 + (150 if jl is not None else 0)
+            else:
+                h = ld(f'rev_hard_{tag}.npz')
+                if h is None: continue
+                ords = [(c(h['chk0']), h['ord_best'][11])]; sqs = [c(h['chk'])]; pairs = [(c(h['chk0']), c(h['chk']))]; evals = 506
+                for ext in ('conv', 'b'):
+                    e = ld(f'rev_hard_{tag}_{ext}.npz') if ext == 'conv' else ld(f'rev_hard_{tag}_b.npz')
+                    if e is None: continue
+                    ords.append((c(e['chk0']), e['ord_best'][11])); sqs.append(c(e['chk'])); pairs.append((c(e['chk0']), c(e['chk'])))
+                    evals += 450 if ext == 'conv' else 506
+                k = int(np.argmin([p[0] for p in pairs])); on_best = pc(pairs[k][1], pairs[k][0]); task = LADDER[tag][1]()
+            Lo, nro = min(ords); Ls = min(sqs)
+            rows.append(dict(key=key, name=nm_, par=par, lev=lev, tag=tag, nr=nro, ols=ols10(task), on_best=max(0.0, on_best),
+                             best=max(0.0, pc(Ls, Lo)), evals=evals))
+    return rows
+
+def hard_numbers(rows):
+    if not rows: return
+    T_ = {r['tag']: r for r in rows}
+    def tg(t): return t.upper().replace('LORENZ10', 'LORENZTEN').replace('LORENZ5', 'LORENZFIVE').replace('MG20', 'MGTWENTY').replace('MG40', 'MGFORTY').replace('NCE4', 'NCEFOUR').replace('NCE6', 'NCESIX')
+    for r in rows:
+        m('hdNr' + tg(r['tag']), '%.2f' % r['nr']); m('hdOn' + tg(r['tag']), '%.1f' % r['on_best']); m('hdBest' + tg(r['tag']), '%.0f' % r['best'])
+        m('hdOls' + tg(r['tag']), '%.2f' % r['ols'])
+    hard = [r for r in rows if r['nr'] > 0.5]
+    m('hdHardMax', '%.2f' % max(r['on_best'] for r in hard)); m('hdOnMax', '%.1f' % max(r['on_best'] for r in rows))
+    m('hdBestMax', '%.0f' % max(r['best'] for r in rows)); m('hdN', str(len(rows)))
+    nr = np.array([r['nr'] for r in rows]); on = np.array([r['on_best'] for r in rows])
+    from scipy.stats import spearmanr
+    rho = spearmanr(nr, on).correlation; m('hdRho', '%.2f' % rho)
+    if 'mg20' in T_:
+        h = ld('rev_hard_mg20.npz'); m('hdMgFirst', '%.0f' % pc(float(h['chk'][-1][0]), float(h['chk0'][-1][0]))); m('hdMgRe', '%.2f' % h['sq_best'][7])
+        m('hdMgEvals', '%d' % T_['mg20']['evals'])
+    L = [r'\begin{tabular}{llcccc}', r'\toprule', r'task & level & NRMSE, linear regression & NRMSE, re-fabricated & squeezing on it (\%) & best squeezed vs.\ best re-fabricated (\%)\\', r'\midrule']
+    prev = None
+    for r in rows:
+        lab = (r['name'] if r['key'] != prev else ''); prev = r['key']
+        lev = ('%s %d' % (r['par'], r['lev'])) if r['par'] else '--'
+        L.append(r'%s & %s & %.2f & %.3f & %.2f & %.1f\\' % (lab, lev, r['ols'], r['nr'], r['on_best'], r['best']))
+    L += [r'\bottomrule', r'\end{tabular}']; open(os.path.join(PAPER, 'hardtable.tex'), 'w').write('\n'.join(L))
+    fig, ax = plt.subplots(figsize=(4.2, 2.8))
+    for key, mk, col in (('lorenz', 'o', '#264653'), ('mg', 's', '#e76f51'), ('nce', '^', '#2a9d8f'), ('narma', 'D', '#8ab17d'), ('laser', 'v', '0.5')):
+        rr = [r for r in rows if r['key'] == key]
+        if not rr: continue
+        x = [r['nr'] for r in rr]; ax.plot(x, [r['on_best'] for r in rr], mk, color=col, ms=4, lw=0, label=rr[0]['name'].replace('--', '–'))
+        ax.plot(x, [r['best'] for r in rr], mk, mfc='none', color=col, ms=6, lw=0)
+        if len(rr) > 1:
+            for r in rr: ax.annotate(str(r['lev']), (r['nr'], max(r['on_best'], r['best'])), xytext=(4, 3), textcoords='offset points', fontsize=5.5, color=col)
+    ax.set_xlabel('held-out NRMSE of the re-fabricated device'); ax.set_ylabel('loss reduction by squeezing (%)'); ax.set_yscale('symlog', linthresh=1)
+    ax.set_ylim(-0.2, 40); ax.legend(frameon=False, fontsize=6); ax.axhline(0, color='k', lw=0.4)
+    ax.text(0.98, 0.97, 'filled: squeezing on the best re-fabricated device\nopen: best squeezed device found, vs. best re-fabricated', transform=ax.transAxes, ha='right', va='top', fontsize=5.5)
+    fig.savefig(os.path.join(FIG, 'figS_hard.pdf'), bbox_inches='tight'); plt.close(fig)
+
 if __name__ == '__main__':
     refabsq_numbers(); rows = fig_refab(); numbers_refab(rows)
     if ld('rev_grad.npz') is not None and ld('rev_train.npz') is not None:
@@ -493,6 +565,7 @@ if __name__ == '__main__':
     R = bounds_rows()
     if R: bounds_numbers(R); bounds_table(R); fig_bounds(R)
     seeds_numbers(); etae_numbers(); sme_numbers()
+    import sys; sys.path.insert(0, HERE); hard_numbers(hard_rows())
     with open(os.path.join(PAPER, 'revnumbers.tex'), 'w') as f:
         for k, v in M.items(): f.write('\\newcommand{\\%s}{%s}\n' % (k, v))
     print('\n'.join('%s = %s' % kv for kv in M.items()))

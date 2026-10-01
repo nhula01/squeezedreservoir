@@ -63,6 +63,7 @@ Units: rates and frequencies in units of the fabricated cavity detuning ω_a; ti
 | Squeezing on the re-fabricated device (original box) | `rev_refab_sq.py`, `rev_refab_sq14.py` | `rev_refab_sq*.npz` | 13 |
 | Wide-box re-fabrication with the noiseless objective (weak-signal optimum) | `rev_bounds.py` | `rev_bounds_<task>.npz` | 13 |
 | Wide-box re-fabrication with a measurement-aware objective: squeezing on it, matched-parameter and mapped controls, joint search, photon budget | `rev_bounds2.py`, `rev_bounds2_final.py`, `rev_bounds2_joint.py`, `rev_bounds2_jointzero.py`, `rev_bounds2_jointlocal.py`, `rev_bounds2_budget.py` | `rev_bounds2_<task>*.npz` | 13 |
+| Squeezing on re-fabricated devices for harder tasks (difficulty ladders) | `rev_hard.py`, `rev_hard_conv.py`, `rev_hard_mg20b.py` | `rev_hard_<task>*.npz` | 13 |
 | Fresh input realizations of the tuned-drive gains | `rev_seeds.py` | `rev_seeds.npz` | 13 |
 | Emitter detection efficiency | `rev_etae.py` | `rev_etae.npz` | 13 |
 | Quantum-trajectory check of the readout model | `rev_sme.py` | `rev_sme.npz` | 13 |
@@ -90,6 +91,8 @@ python3 rev_bounds2.py narma lorenz mg & python3 rev_bounds2.py laser nce; wait
 python3 rev_bounds2_final.py mg narma lorenz nce laser; python3 rev_bounds2_jointzero.py mg narma lorenz nce laser
 python3 rev_bounds2_jointlocal.py nce; python3 rev_bounds2_budget.py
 python3 rev_seeds.py; python3 rev_etae.py; python3 rev_sme.py
+python3 rev_hard.py lorenz5 lorenz10 nce6 & python3 rev_hard.py mg20 mg40 nce4; wait
+python3 rev_hard_conv.py mg20 mg40; python3 rev_hard_mg20b.py
 # figures, tables, macros
 python3 make_figs.py; python3 make_numbers.py; python3 make_rev.py
 # notebooks

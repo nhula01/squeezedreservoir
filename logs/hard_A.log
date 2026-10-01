@@ -1,0 +1,7 @@
+05:12:26 lorenz5 ORDINARY {'g': np.float64(2.73), 'kappa': np.float64(0.072), 'gamma': np.float64(1.086), 'omega': np.float64(4.141), 'omega_q': np.float64(2.247), 'eps': np.float64(3.85)} L 2.0541e-01 NRMSE 0.189 nmax 1.95 (OLS10 NRMSE 0.802)
+05:18:03 lorenz5 SQUEEZING on re-fabricated [ 0.     0.255 -2.936] phi_d 1.57: L 2.0541e-01 -> 2.0398e-01, checked 2.0305e-01 -> 2.0305e-01 (-0.00%), NRMSE 0.189 -> 0.190
+05:33:39 lorenz10 ORDINARY {'g': np.float64(1.518), 'kappa': np.float64(0.263), 'gamma': np.float64(0.181), 'omega': np.float64(3.665), 'omega_q': np.float64(4.02), 'eps': np.float64(3.449)} L 9.3732e+00 NRMSE 0.677 nmax 1.55 (OLS10 NRMSE 1.283)
+05:44:45 lorenz10 SQUEEZING on re-fabricated [ 0.     0.    -3.142] phi_d 1.57: L 9.3732e+00 -> 9.3732e+00, checked 9.4107e+00 -> 9.4107e+00 (0.00%), NRMSE 0.677 -> 0.677
+06:08:03 nce6 ORDINARY {'g': np.float64(1.182), 'kappa': np.float64(0.438), 'gamma': np.float64(0.002), 'omega': np.float64(2.805), 'omega_q': np.float64(3.012), 'eps': np.float64(0.256)} L 1.1562e+00 NRMSE 0.719 nmax 0.10 (OLS10 NRMSE 0.151)
+06:13:49 nce6 SQUEEZING on re-fabricated [ 0.     0.068 -3.14 ] phi_d 1.57: L 1.1562e+00 -> 1.1560e+00, checked 1.1562e+00 -> 1.1560e+00 (0.02%), NRMSE 0.719 -> 0.718
+06:13:49 done hard ['lorenz5', 'lorenz10', 'nce6']

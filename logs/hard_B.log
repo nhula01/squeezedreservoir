@@ -1,0 +1,7 @@
+05:12:12 mg20 ORDINARY {'g': np.float64(0.992), 'kappa': np.float64(0.158), 'gamma': np.float64(0.043), 'omega': np.float64(2.48), 'omega_q': np.float64(1.655), 'eps': np.float64(1.163)} L 4.3054e-04 NRMSE 0.129 nmax 0.41 (OLS10 NRMSE 0.608)
+05:17:45 mg20 SQUEEZING on re-fabricated [ 0.     0.339 -0.006] phi_d 0.00: L 4.3054e-04 -> 2.4819e-04, checked 4.3054e-04 -> 2.4819e-04 (42.35%), NRMSE 0.129 -> 0.098
+05:32:39 mg40 ORDINARY {'g': np.float64(1.034), 'kappa': np.float64(0.174), 'gamma': np.float64(0.063), 'omega': np.float64(2.407), 'omega_q': np.float64(1.773), 'eps': np.float64(1.305)} L 3.0569e-03 NRMSE 0.303 nmax 0.50 (OLS10 NRMSE 0.827)
+05:43:32 mg40 SQUEEZING on re-fabricated [0.    0.149 3.136] phi_d 1.57: L 3.0569e-03 -> 2.9372e-03, checked 3.0569e-03 -> 2.9372e-03 (3.92%), NRMSE 0.303 -> 0.290
+06:07:21 nce4 ORDINARY {'g': np.float64(1.037), 'kappa': np.float64(0.557), 'gamma': np.float64(1.2), 'omega': np.float64(2.816), 'omega_q': np.float64(2.203), 'eps': np.float64(0.177)} L 4.7904e-02 NRMSE 0.149 nmax 0.01 (OLS10 NRMSE 0.119)
+06:13:04 nce4 SQUEEZING on re-fabricated [ 0.022  0.023 -3.142] phi_d 1.57: L 4.7904e-02 -> 4.7878e-02, checked 4.7904e-02 -> 4.7878e-02 (0.06%), NRMSE 0.149 -> 0.149
+06:13:04 done hard ['mg20', 'mg40', 'nce4']
