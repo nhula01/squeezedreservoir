@@ -31,14 +31,14 @@ def _sqf(n):
 
 def fig_refab():
     """a: relative-precision objective of the paper (tuned drive, squeezing, mapped device, original-box re-fabrication);
-    b: measurement-aware objective (rev_bounds2.py): tuned base and squeezed device, re-fabrication in the original box with and
+    b: measurement-aware objective (rev_bounds2.py): tuned base and squeezed device, re-fabrication in the narrow box with and
     without squeezing, re-fabrication in the wide box with and without squeezing, joint search."""
     have_b = any(_bd2(n) is not None for n in T)
     fig, axs = plt.subplots(2 if have_b else 1, 1, figsize=(7.0, 5.4 if have_b else 2.6), gridspec_kw=dict(hspace=0.75))
     axs = np.atleast_1d(axs); ax = axs[0]
     cols = ['0.75', '0.55', '#f4a261', '#e76f51', '#8ab17d', '#264653']
     labs = ['base: drive amplitude', 'base: drive amplitude + frequency', 'squeezing (from amplitude base)', 'squeezing (from amplitude + frequency base)',
-            'unsqueezed device with the effective parameters', 're-fabrication (6 parameters, original box)']
+            'unsqueezed device with the effective parameters', 're-fabrication (6 parameters, narrow box)']
     w = 0.13; rows = []
     for i, n in enumerate(T):
         Lb = bs[f'{n}_eps'][:, 1].min()
@@ -52,7 +52,7 @@ def fig_refab():
     if have_b:
         ax = axs[1]; w = 0.12
         cols = ['0.55', '#e76f51', '#9fb8c7', '#5d7f99', '#264653', '#2a9d8f', '#b5838d']
-        labs = ['tuned base', 'tuned base + squeezing', 're-fabrication, original box', 're-fabrication, original box + squeezing', 're-fabrication, wide box', 're-fabrication, wide box + squeezing', 'joint search (6 + 4 parameters)']
+        labs = ['tuned base', 'tuned base + squeezing', 're-fabrication, narrow box', 're-fabrication, narrow box + squeezing', 're-fabrication, wide box', 're-fabrication, wide box + squeezing', 'joint search (6 + 4 parameters)']
         for i, n in enumerate(T):
             d = _bd2(n); q = _sqf(n)
             if d is None: continue
@@ -191,7 +191,7 @@ def perf_and_eff_tables():
         return {str(r[0]): float(r[2]) for r in B}
     cols = {n: base_of(n) for n in T}
     rows = [('tuned drive, unsqueezed', lambda n: b2[f'{n}_base2'][3]), ('tuned drive, squeezed', lambda n: b2[f'{n}_Lsq2'][0][1]),
-            ('re-fabricated, original box', lambda n: rf[f'{n}_best'][7]), ('\\quad + squeezing', lambda n: float(M.get('nrRfSq' + U[n], 'nan'))),
+            ('re-fabricated, narrow box', lambda n: rf[f'{n}_best'][7]), ('\\quad + squeezing', lambda n: float(M.get('nrRfSq' + U[n], 'nan'))),
             ('re-fabricated, wide box$^\\dagger$', lambda n: _bd2(n)['ord_best'][11] if _bd2(n) is not None else np.nan),
             ('\\quad + squeezing$^\\dagger$', lambda n: _sqf(n)['best'][11] if _sqf(n) is not None else np.nan), ('linear regression, 10 delays', lambda n: cols[n]['ols10']),
             ('quadratic regression, 10 delays', lambda n: cols[n]['quad10']), ('100-node echo-state network', lambda n: cols[n]['esn100'])]
@@ -278,7 +278,7 @@ def best_of(tr):
     tr = np.asarray(tr); ok = tr[:, 12] <= 2.5; return tr[np.where(ok)[0][tr[ok, 10].argmin()]]
 
 def refabsq_numbers():
-    """Squeezing on the re-fabricated optimum of the original box (rev_refab_sq.py, rev_refab_sq14.py) -> paper/refabsqnumbers.tex."""
+    """Squeezing on the re-fabricated optimum of the narrow box (rev_refab_sq.py, rev_refab_sq14.py) -> paper/refabsqnumbers.tex."""
     sq, s14 = ld('rev_refab_sq.npz'), ld('rev_refab_sq14.npz'); Q = {}
     if sq is None: return
     rows = []
@@ -373,7 +373,7 @@ def bounds_table(R):
         sq = (r'%s, (%.2f, %.2f, %.2f)' % (r'$\pi/2$' if q[9] > 0.5 else '0', *q[6:9])) if q is not None else '--'
         L.append(NM[n].replace('–', '--') + ' & ' + ' & '.join('%.3g' % o[k] for k in range(6)) + ' & %.2f & %s & (%.2f, %.2f, %.2f, %.2f)\\\\' % (o[12], sq, *j[6:10]))
     L += [r'\bottomrule', r'\end{tabular}']; open(os.path.join(PAPER, 'boundstable.tex'), 'w').write('\n'.join(L))
-    L = [r'\begin{tabular}{lcccccccc}', r'\toprule', r'task & tuned base & tuned + sq. & old box & old box + sq. & wide box & wide box + sq. & matched & joint\\', r'\midrule']
+    L = [r'\begin{tabular}{lcccccccc}', r'\toprule', r'task & tuned base & tuned + sq. & narrow box & narrow box + sq. & wide box & wide box + sq. & matched & joint\\', r'\midrule']
     for n, r in R.items():
         refs = r['refs'][:, 0]; Lo = r['ord'][10]
         f = lambda x: sci3(x) if np.isfinite(x) else '--'
