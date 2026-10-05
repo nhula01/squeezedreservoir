@@ -552,6 +552,47 @@ def hard_numbers(rows):
     ax.text(0.98, 0.97, 'filled: squeezing on the best re-fabricated device\nopen: best squeezed device found, vs. best re-fabricated', transform=ax.transAxes, ha='right', va='top', fontsize=5.5)
     fig.savefig(os.path.join(FIG, 'figS_hard.pdf'), bbox_inches='tight'); plt.close(fig)
 
+def ps_numbers():
+    """Phase-sensitive knobs at and on the way to the re-fabricated optimum (rev_ps.py) -> pstable.tex, figS_ps.pdf, macros."""
+    tasks = [t for t in ('nce', 'narma', 'lorenz', 'mg', 'laser', 'mg20') if ld(f'rev_ps_{t}.npz') is not None and 'dec_cr_chk' in ld(f'rev_ps_{t}.npz').files]
+    if not tasks: return
+    nm = dict(NM, mg20='Mackey–Glass (20 steps)'); U2 = dict(U, mg20='MGTWENTY')
+    rows = {}
+    for t in tasks:
+        d = ld(f'rev_ps_{t}.npz'); c0 = float(d['chk0'][-1][0]); c = lambda k: float(d[k][-1][0])
+        rows[t] = dict(fixed=max(0, pc(c('dec_kn_chk'), c0)), ordonly=max(0, pc(c('dec_ord_chk'), c0)), sq=max(0, pc(c('dec_sq_chk'), c0)),
+                       cr=max(0, pc(c('dec_cr_chk'), c0)), all=max(0, pc(c('chk_joint'), c0)), d=d)
+        r = rows[t]; u = U2[t]
+        for k in ('fixed', 'ordonly', 'sq', 'cr', 'all'): m('ps' + k.capitalize() + u, '%.1f' % r[k])
+        m('psBestSq' + u, '%.1f' % max(r['sq'], r['all'] if r['d']['joint_trace'] is not None else 0))
+        F = d['first']; m('psFirst' + u, '%.1f' % max(0, -100 * F[:, 2].min()))
+    m('psFixedMax', '%.1f' % max(r['fixed'] for r in rows.values())); m('psOrdMax', '%.1f' % max(r['ordonly'] for r in rows.values()))
+    m('psSqMin', '%.1f' % min(r['sq'] for t, r in rows.items() if t != 'narma')); m('psSqMax', '%.1f' % max(r['sq'] for r in rows.values()))
+    m('psCrMax', '%.0f' % max(r['cr'] for r in rows.values()))
+    L = [r'\begin{tabular}{lccccc}', r'\toprule', r'task & knobs, device fixed & ordinary only (control) & squeezing-type knobs + device & counter-rotating + device & all knobs + device\\', r'\midrule']
+    for t, r in rows.items(): L.append(nm[t].replace('–', '--') + ' & %.1f & %.1f & %.1f & %.1f & %.1f\\\\' % (r['fixed'], r['ordonly'], r['sq'], r['cr'], r['all']))
+    L += [r'\bottomrule', r'\end{tabular}']; open(os.path.join(PAPER, 'pstable.tex'), 'w').write('\n'.join(L))
+    fig, axs = plt.subplots(1, 2, figsize=(7.2, 2.6), gridspec_kw=dict(wspace=0.35, width_ratios=[1, 1.5]))
+    ax = axs[0]
+    for t, col in (('nce', '#2a9d8f'), ('narma', '#8ab17d'), ('lorenz', '#264653')):
+        if t not in rows: continue
+        d = rows[t]['d']; L0 = float(d['L0'][0]); P_ = [d['path_%d' % i] for i in range(3) if 'path_%d' % i in d.files]
+        kb = float(rows[t]['d']['chk_knob'][-1][0]) / float(d['chk0'][-1][0]) * L0
+        s_ = [p[0] for p in P_] + [1.0]; yo = [p[1] / L0 for p in P_] + [1.0]; yk = [p[2] / L0 for p in P_] + [min(kb, L0) / L0]
+        ax.plot(s_, yo, 'o--', color=col, ms=3, lw=0.8); ax.plot(s_, yk, 's-', color=col, ms=3, lw=1.0, label=NM[t])
+    ax.axhline(1, color='k', lw=0.5, ls=':'); ax.set_yscale('log'); ax.set_xlabel('position between tuned base (0) and re-fabricated optimum (1)', fontsize=6.5)
+    ax.set_ylabel('loss / re-fabricated optimum'); ax.legend(frameon=False, fontsize=5.5); lab(ax, 'a')
+    ax.text(0.03, 0.04, 'dashed: ordinary device\nsolid: + phase-sensitive knobs', transform=ax.transAxes, fontsize=5.5)
+    ax = axs[1]; keys = [('fixed', 'knobs, device fixed', '#9fb8c7'), ('ordonly', 'ordinary parameters only (control)', '0.6'),
+                         ('sq', 'squeezing-type knobs + device', '#e76f51'), ('cr', 'counter-rotating coupling + device', '#b5838d')]
+    w = 0.2
+    for j, (k, lb, col) in enumerate(keys):
+        ax.bar(np.arange(len(rows)) + (j - 1.5) * w, [rows[t][k] for t in rows], w, color=col, label=lb, edgecolor='k', lw=0.3)
+    short = dict(nce='channel eq.', narma='NARMA10', lorenz='Lorenz-63', mg='Mackey–\nGlass', laser='laser', mg20='Mackey–Glass\n20 steps')
+    ax.set_xticks(range(len(rows))); ax.set_xticklabels([short[t] for t in rows], fontsize=6)
+    ax.set_ylabel('loss reduction at the re-fabricated\noptimum (%)'); ax.legend(frameon=False, fontsize=5.5); lab(ax, 'b')
+    fig.savefig(os.path.join(FIG, 'figS_ps.pdf'), bbox_inches='tight'); plt.close(fig)
+
 if __name__ == '__main__':
     refabsq_numbers(); rows = fig_refab(); numbers_refab(rows)
     if ld('rev_grad.npz') is not None and ld('rev_train.npz') is not None:
@@ -565,7 +606,7 @@ if __name__ == '__main__':
     R = bounds_rows()
     if R: bounds_numbers(R); bounds_table(R); fig_bounds(R)
     seeds_numbers(); etae_numbers(); sme_numbers()
-    import sys; sys.path.insert(0, HERE); hard_numbers(hard_rows())
+    import sys; sys.path.insert(0, HERE); hard_numbers(hard_rows()); ps_numbers()
     with open(os.path.join(PAPER, 'revnumbers.tex'), 'w') as f:
         for k, v in M.items(): f.write('\\newcommand{\\%s}{%s}\n' % (k, v))
     print('\n'.join('%s = %s' % kv for kv in M.items()))

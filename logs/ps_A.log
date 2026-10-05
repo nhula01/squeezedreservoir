@@ -1,0 +1,14 @@
+10:43:37 nce first order (small amplitude 0.05): best dL/L per mechanism (lam, g_cr, r_e): [-0.01, -0.00587, -0.0]
+10:50:16 nce knobs on the re-fabricated device: {'lam': np.float64(0.21), 'phi_s': np.float64(1.58), 'g_cr': np.float64(0.078), 'phi_c': np.float64(-1.264), 'r_e': np.float64(0.016), 'dth': np.float64(0.153)} L 2.5511e-02 -> 2.4615e-02 (3.51%)
+10:56:51 nce checked: device 2.5511e-02, + knobs 2.4615e-02 (3.51%), joint local 2.2714e-02 (10.97%; same device, knobs off 3.4877e-02)
+10:57:39 narma first order (small amplitude 0.05): best dL/L per mechanism (lam, g_cr, r_e): [0.00166, 0.00884, -0.00037]
+11:01:57 narma knobs on the re-fabricated device: {'lam': np.float64(0.0), 'phi_s': np.float64(0.0), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.0), 'dth': np.float64(0.0)} L 1.7197e-03 -> 1.7197e-03 (0.00%)
+11:08:06 narma checked: device 1.7197e-03, + knobs 1.7197e-03 (0.00%), joint local 1.7184e-03 (0.07%; same device, knobs off 1.7183e-03)
+11:09:19 lorenz first order (small amplitude 0.05): best dL/L per mechanism (lam, g_cr, r_e): [0.00972, 0.04355, -0.01498]
+11:15:47 lorenz knobs on the re-fabricated device: {'lam': np.float64(0.0), 'phi_s': np.float64(-0.093), 'g_cr': np.float64(0.0), 'phi_c': np.float64(-0.093), 'r_e': np.float64(0.012), 'dth': np.float64(-0.093)} L 4.0229e-03 -> 4.0098e-03 (0.33%)
+11:25:42 lorenz checked: device 3.8558e-03, + knobs 3.8442e-03 (0.30%), joint local 3.5700e-03 (7.41%; same device, knobs off 4.4187e-03)
+11:25:42 done ['opt', 'nce', 'narma', 'lorenz']
+11:31:18 nce path s = 0.00: ordinary L 2.0290e-01, with knobs 5.8393e-02 (71.2%) {'lam': np.float64(0.722), 'phi_s': np.float64(0.037), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.23), 'r_e': np.float64(0.05), 'dth': np.float64(-0.996)}
+11:37:05 nce path s = 0.33: ordinary L 3.1123e-01, with knobs 3.6942e-02 (88.1%) {'lam': np.float64(0.739), 'phi_s': np.float64(-0.149), 'g_cr': np.float64(0.679), 'phi_c': np.float64(-2.125), 'r_e': np.float64(0.012), 'dth': np.float64(-1.586)}
+11:42:56 nce path s = 0.67: ordinary L 8.9947e-02, with knobs 3.6039e-02 (59.9%) {'lam': np.float64(0.318), 'phi_s': np.float64(0.887), 'g_cr': np.float64(0.761), 'phi_c': np.float64(3.142), 'r_e': np.float64(0.005), 'dth': np.float64(-0.766)}
+11:42:56 done ['path', 'nce']
