@@ -1,0 +1,10 @@
+14:53:42 mg squeezing on the fixed device, continuous phase, best of all searches: 0.43% (N_c=10 0.43%) {'lam': np.float64(0.018), 'phi_s': np.float64(0.052), 'g_cr': np.float64(0.0), 'phi_c': np.float64(-0.372), 'r_e': np.float64(0.0), 'dth': np.float64(-0.385)} nmax 0.64
+14:56:00 laser squeezing on the fixed device, continuous phase, best of all searches: 2.07% (N_c=10 2.07%) {'lam': np.float64(0.099), 'phi_s': np.float64(-0.766), 'g_cr': np.float64(0.0), 'phi_c': np.float64(-1.051), 'r_e': np.float64(0.137), 'dth': np.float64(-3.122)} nmax 0.24
+14:57:57 mg20 squeezing on the fixed device, continuous phase, best of all searches: 2.99% (N_c=10 2.99%) {'lam': np.float64(0.024), 'phi_s': np.float64(-0.452), 'g_cr': np.float64(0.0), 'phi_c': np.float64(-0.685), 'r_e': np.float64(0.103), 'dth': np.float64(-3.093)} nmax 0.68
+14:59:45 mg40 squeezing on the fixed device, continuous phase, best of all searches: 4.23% (N_c=10 4.23%) {'lam': np.float64(0.0), 'phi_s': np.float64(-0.386), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.149), 'dth': np.float64(-0.034)} nmax 0.52
+15:02:03 nce6 squeezing on the fixed device, continuous phase, best of all searches: 0.06% (N_c=10 0.06%) {'lam': np.float64(0.056), 'phi_s': np.float64(0.685), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.109), 'dth': np.float64(-2.394)} nmax 0.10
+15:02:03 done ['sqfix2', 'mg', 'laser', 'mg20', 'mg40', 'nce6']
+15:06:28 mg40 ordinary-only local control: 0.00%
+15:10:37 nce6 ordinary-only local control: 0.56%
+15:10:37 done ['ordctl', 'mg40', 'nce6']
+CHAIN_DONE

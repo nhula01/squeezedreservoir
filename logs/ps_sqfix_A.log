@@ -1,0 +1,7 @@
+14:12:36 nce squeezing on the fixed device, continuous phase: 2.96% {'lam': np.float64(0.226), 'phi_s': np.float64(1.558), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.0), 'dth': np.float64(-0.278)}
+14:15:54 narma squeezing on the fixed device, continuous phase: 0.09% {'lam': np.float64(0.0), 'phi_s': np.float64(-0.424), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.027), 'dth': np.float64(-3.142)}
+14:19:36 lorenz squeezing on the fixed device, continuous phase: 1.06% {'lam': np.float64(0.0), 'phi_s': np.float64(0.0), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.05), 'dth': np.float64(0.0)}
+14:30:32 lorenz5 squeezing on the fixed device, continuous phase: 2.48% {'lam': np.float64(0.059), 'phi_s': np.float64(1.509), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.182), 'dth': np.float64(0.176)} | + device 8.04%
+14:41:14 lorenz10 squeezing on the fixed device, continuous phase: 1.12% {'lam': np.float64(0.071), 'phi_s': np.float64(1.318), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.0), 'dth': np.float64(-0.251)} | + device 6.66%
+14:51:15 nce4 squeezing on the fixed device, continuous phase: 0.11% {'lam': np.float64(0.054), 'phi_s': np.float64(1.875), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.032), 'dth': np.float64(-1.041)} | + device 0.17%
+14:51:15 done ['sqfix', 'nce', 'narma', 'lorenz', 'lorenz5', 'lorenz10', 'nce4']

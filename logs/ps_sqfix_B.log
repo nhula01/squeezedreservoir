@@ -1,0 +1,6 @@
+14:11:30 mg squeezing on the fixed device, continuous phase: 0.00% {'lam': np.float64(0.0), 'phi_s': np.float64(0.0), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.0), 'dth': np.float64(0.0)}
+14:15:41 laser squeezing on the fixed device, continuous phase: 1.43% {'lam': np.float64(0.085), 'phi_s': np.float64(-0.93), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.0), 'dth': np.float64(-0.542)}
+14:23:36 mg20 squeezing on the fixed device, continuous phase: 2.60% {'lam': np.float64(0.0), 'phi_s': np.float64(-0.066), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.08), 'dth': np.float64(-2.888)} | + device 6.91%
+14:32:53 mg40 squeezing on the fixed device, continuous phase: 4.23% {'lam': np.float64(0.0), 'phi_s': np.float64(-0.386), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.149), 'dth': np.float64(-0.034)} | + device 9.14%
+14:43:17 nce6 squeezing on the fixed device, continuous phase: 0.06% {'lam': np.float64(0.057), 'phi_s': np.float64(0.614), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.108), 'dth': np.float64(-2.486)} | + device 10.36%
+14:43:17 done ['sqfix', 'mg', 'laser', 'mg20', 'mg40', 'nce6']

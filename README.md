@@ -64,6 +64,7 @@ Units: rates and frequencies in units of the fabricated cavity detuning ω_a; ti
 | Wide-box re-fabrication with the noiseless objective (weak-signal optimum) | `rev_bounds.py` | `rev_bounds_<task>.npz` | 13 |
 | Wide-box re-fabrication with a measurement-aware objective: squeezing on it, matched-parameter and mapped controls, joint search, photon budget | `rev_bounds2.py`, `rev_bounds2_final.py`, `rev_bounds2_joint.py`, `rev_bounds2_jointzero.py`, `rev_bounds2_jointlocal.py`, `rev_bounds2_budget.py` | `rev_bounds2_<task>*.npz` | 13 |
 | Squeezing on re-fabricated devices for harder tasks (difficulty ladders) | `rev_hard.py`, `rev_hard_conv.py`, `rev_hard_mg20b.py` | `rev_hard_<task>*.npz` | 13 |
+| Phase-sensitive terms at and on the way to the re-fabricated optimum (continuous phases, local co-design, controls) | `rev_ps.py` | `rev_ps_<task>.npz` | 13 |
 | Fresh input realizations of the tuned-drive gains | `rev_seeds.py` | `rev_seeds.npz` | 13 |
 | Emitter detection efficiency | `rev_etae.py` | `rev_etae.npz` | 13 |
 | Quantum-trajectory check of the readout model | `rev_sme.py` | `rev_sme.npz` | 13 |
@@ -93,6 +94,9 @@ python3 rev_bounds2_jointlocal.py nce; python3 rev_bounds2_budget.py
 python3 rev_seeds.py; python3 rev_etae.py; python3 rev_sme.py
 python3 rev_hard.py lorenz5 lorenz10 nce6 & python3 rev_hard.py mg20 mg40 nce4; wait
 python3 rev_hard_conv.py mg20 mg40; python3 rev_hard_mg20b.py
+python3 rev_ps.py opt nce narma lorenz mg laser mg20; python3 rev_ps.py decomp nce narma lorenz mg laser mg20; python3 rev_ps.py path nce narma lorenz
+python3 rev_ps.py sqfix nce narma lorenz mg laser mg20 lorenz5 lorenz10 mg40 nce4 nce6; python3 rev_ps.py sqfix2 nce narma lorenz mg laser mg20 lorenz5 lorenz10 mg40 nce4 nce6
+python3 rev_ps.py ordctl lorenz5 lorenz10 mg40 nce4 nce6; python3 rev_ps.py check
 # figures, tables, macros
 python3 make_figs.py; python3 make_numbers.py; python3 make_rev.py
 # notebooks
@@ -100,8 +104,8 @@ python3 build_notebooks.py; python3 build_rev_notebooks.py; python3 build_rev2_n
 ```
 
 Every run script saves after each completed unit and resumes from its `.npz`, so it can be interrupted. One reservoir
-evaluation (1,000 symbols, `N_c = 10`) takes about 1.4 s on one core; the full set of runs is roughly 20 core-hours, of
-which the second-round re-fabrication study is about half.
+evaluation (1,000 symbols, `N_c = 10`) takes about 1.4 s on one core; the full set of runs is roughly 25 core-hours, of
+which the second-round re-fabrication studies are about half.
 
 **Spoken digits.** Download the [Free Spoken Digit Dataset](https://github.com/Jakobovski/free-spoken-digit-dataset),
 unzip it so that `free-spoken-digit-dataset-master/recordings` exists, and set `FSDD_DIR` to the parent directory

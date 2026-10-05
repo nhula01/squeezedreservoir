@@ -142,10 +142,12 @@ def check(dev, k, task, nm):
 
 def refab_device(name):
     """Best re-fabricated (wide box, measurement-aware) ordinary device; for mg20 the best of the three searches."""
-    if name == 'mg20':
-        c = [np.load(os.path.join(DATA, f), allow_pickle=True)['ord_best'] for f in ('rev_hard_mg20_conv.npz', 'rev_hard_mg20_b.npz')]
-        c.append(rb.best_row(np.load(os.path.join(DATA, 'rev_hard_mg20.npz'), allow_pickle=True)['ord_trace']))
-        p = min(c, key=lambda r: r[10])[:6]; task = LADDER['mg20'][1]()
+    if name in LADDER:
+        c = [rb.best_row(np.load(os.path.join(DATA, f'rev_hard_{name}.npz'), allow_pickle=True)['ord_trace'])]
+        for ext in ('conv', 'b'):
+            f = os.path.join(DATA, f'rev_hard_{name}_{ext}.npz')
+            if os.path.exists(f): c.append(np.load(f, allow_pickle=True)['ord_best'])
+        p = min(c, key=lambda r: r[10])[:6]; task = LADDER[name][1]()
     else:
         p = rb.best_row(np.load(os.path.join(DATA, f'rev_bounds2_{name}.npz'), allow_pickle=True)['ord_trace'])[:6]; task = TASKS[name]
     return replace(DEV, Nc=NC, phi_d=0.0, **dict(zip(rb.PN, p))), task
@@ -186,6 +188,57 @@ if __name__ == '__main__':
             c = lambda k: out[k][-1][0]
             log(name, 'checked: device %.4e, + knobs %.4e (%.2f%%), joint local %.4e (%.2f%%; same device, knobs off %.4e)' % (
                 c('chk0'), c('chk_knob'), 100 * (1 - c('chk_knob') / c('chk0')), c('chk_joint'), 100 * (1 - c('chk_joint') / c('chk0')), out['joint_off'][0]))
+        elif mode == 'sqfix':
+            # squeezing on the re-fabricated device itself (device fixed), with the drive phase continuous: squeezing-type
+            # knobs only (lam, phi_s, r_e, dth; g_cr = 0), Nelder-Mead from the best squeezing-type scan or first-order point
+            if 'L0' not in out:
+                out['L0'] = np.array(evaluate_ps(dev, np.zeros(6), task)); save()
+            if 'first' not in out:
+                out['first'] = first_order(dev, task, out['L0'][0]); save()
+            if 'sqscan' not in out:                      # squeezing-type scans (as knob_search, without the g_cr block)
+                obj = KObj(dev, task, 10 ** 6)
+                for ia, ip, amps in ((0, 1, (0.2, 0.5, 0.8)), (4, 5, (0.15, 0.35, 0.6))):
+                    for a_ in amps:
+                        for ph in (-np.pi / 2, 0.0, np.pi / 2, np.pi - 1e-9):
+                            k = np.zeros(6); k[ia] = a_; k[ip] = ph; obj(kv(k))
+                out['sqscan'] = np.array(obj.trace); save()
+            base_row = np.asarray(out['sqscan'])[0].copy(); base_row[6:12] = 0; base_row[12:15] = out['L0']
+            KT = np.vstack([base_row[None, :], out['sqscan'], first_rows(out['first'], out['L0'][0], base_row)])
+            KT = KT[KT[:, 8] == 0]
+            if 'sqfix' not in out:
+                ud = rb.to_u([dev.g, dev.kappa, dev.gamma, dev.omega, dev.omega_q, dev.eps])
+                out['sqfix'] = masked_local(dev, task, np.concatenate([ud, kv(KT[int(np.argmin(KT[:, 12])), 6:12])]), [6, 7, 10, 11], 100, step=0.08); save()
+            if 'sqjoint' not in out and name in LADDER:   # squeezing-type knobs + device, for the difficulty ladders
+                ud = rb.to_u([dev.g, dev.kappa, dev.gamma, dev.omega, dev.omega_q, dev.eps]); T = np.vstack([KT, out['sqfix']])
+                out['sqjoint'] = masked_local(dev, task, np.concatenate([ud, kv(T[int(np.argmin(np.where(T[:, 14] <= NMAX, T[:, 12], np.inf))), 6:12])]),
+                                              [0, 1, 2, 3, 4, 5, 6, 7, 10, 11], 150); save()
+            if 'chk0' not in out:
+                out['chk0'] = check(dev, np.zeros(6), task, out['L0'][2]); save()
+            b = best(np.vstack([KT, out['sqfix']])); out['sqfix_chk'] = check(dev, b[6:12], task, b[14])
+            msg = 'squeezing on the fixed device, continuous phase: %.2f%% %s' % (100 * (1 - out['sqfix_chk'][-1][0] / out['chk0'][-1][0]), dict(zip(KN, b[6:12].round(3))))
+            if 'sqjoint' in out:
+                bj = best(out['sqjoint']); dj = replace(dev, **dict(zip(rb.PN, bj[:6]))); out['sqjoint_chk'] = check(dj, bj[6:12], task, bj[14])
+                msg += ' | + device %.2f%%' % (100 * (1 - out['sqjoint_chk'][-1][0] / out['chk0'][-1][0]))
+            save(); log(name, msg)
+        elif mode == 'sqfix2':
+            # squeezing-type points on the fixed device found by any search (knob scans and refined knob search with g_cr = 0
+            # exactly, first-order points, sqfix); the best is refined by a second Nelder-Mead (60 evaluations, small simplex)
+            base_row = np.asarray(out['sqscan'])[0].copy(); base_row[6:12] = 0; base_row[12:15] = out['L0']
+            T = np.vstack([base_row[None, :], first_rows(out['first'], out['L0'][0], base_row)] + [np.asarray(out[k]) for k in ('knob_trace', 'dec_kn', 'sqscan', 'sqfix') if k in out])
+            T = T[T[:, 8] == 0]
+            if 'sqfix2' not in out:
+                ud = rb.to_u([dev.g, dev.kappa, dev.gamma, dev.omega, dev.omega_q, dev.eps]); i0 = int(np.argmin(np.where(T[:, 14] <= NMAX, T[:, 12], np.inf)))
+                out['sqfix2'] = masked_local(dev, task, np.concatenate([ud, kv(T[i0, 6:12])]), [6, 7, 10, 11], 60, step=0.03); save()
+            b = best(np.vstack([T, out['sqfix2']])); out['sqfix_chk'] = check(dev, b[6:12], task, b[14]); out['sqfix_best'] = b; save()
+            log(name, 'squeezing on the fixed device, continuous phase, best of all searches: %.2f%% (N_c=%d %.2f%%) %s nmax %.2f' % (
+                100 * (1 - out['sqfix_chk'][-1][0] / out['chk0'][-1][0]), NC, 100 * (1 - b[12] / out['L0'][0]), dict(zip(KN, b[6:12].round(3))), b[14]))
+        elif mode == 'ordctl':
+            # control for sqjoint: the same local search over the six ordinary parameters with the knobs off
+            if 'dec_ord' not in out:
+                ud = rb.to_u([dev.g, dev.kappa, dev.gamma, dev.omega, dev.omega_q, dev.eps])
+                out['dec_ord'] = masked_local(dev, task, np.concatenate([ud, np.zeros(6) + kv(np.zeros(6))]), list(range(6)), 150); save()
+            b = best(out['dec_ord']); dv = replace(dev, **dict(zip(rb.PN, b[:6]))); out['dec_ord_chk'] = check(dv, np.zeros(6), task, b[14]); save()
+            log(name, 'ordinary-only local control: %.2f%%' % (100 * (1 - out['dec_ord_chk'][-1][0] / out['chk0'][-1][0])))
         elif mode == 'decomp':
             base_row = np.asarray(out['knob_trace'])[0].copy()
             KT = np.vstack([out['knob_trace'], first_rows(out['first'], out['L0'][0], base_row)])

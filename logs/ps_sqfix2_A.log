@@ -1,0 +1,11 @@
+14:53:41 nce squeezing on the fixed device, continuous phase, best of all searches: 2.96% (N_c=10 2.96%) {'lam': np.float64(0.226), 'phi_s': np.float64(1.558), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.0), 'dth': np.float64(-0.333)} nmax 0.43
+14:55:32 narma squeezing on the fixed device, continuous phase, best of all searches: 0.09% (N_c=10 0.09%) {'lam': np.float64(0.0), 'phi_s': np.float64(-0.424), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.027), 'dth': np.float64(-3.142)} nmax 0.09
+14:58:13 lorenz squeezing on the fixed device, continuous phase, best of all searches: 7.30% (N_c=10 5.96%) {'lam': np.float64(0.014), 'phi_s': np.float64(1.349), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.077), 'r_e': np.float64(0.217), 'dth': np.float64(-0.541)} nmax 2.50
+15:00:34 lorenz5 squeezing on the fixed device, continuous phase, best of all searches: 2.48% (N_c=10 2.91%) {'lam': np.float64(0.059), 'phi_s': np.float64(1.509), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.182), 'dth': np.float64(0.176)} nmax 1.94
+15:02:59 lorenz10 squeezing on the fixed device, continuous phase, best of all searches: 1.12% (N_c=10 1.08%) {'lam': np.float64(0.071), 'phi_s': np.float64(1.318), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.0), 'dth': np.float64(-0.123)} nmax 1.50
+15:05:14 nce4 squeezing on the fixed device, continuous phase, best of all searches: 0.11% (N_c=10 0.11%) {'lam': np.float64(0.054), 'phi_s': np.float64(1.876), 'g_cr': np.float64(0.0), 'phi_c': np.float64(0.0), 'r_e': np.float64(0.032), 'dth': np.float64(-1.002)} nmax 0.01
+15:05:14 done ['sqfix2', 'nce', 'narma', 'lorenz', 'lorenz5', 'lorenz10', 'nce4']
+15:10:05 lorenz5 ordinary-only local control: 8.42%
+15:14:16 lorenz10 ordinary-only local control: 0.20%
+15:18:41 nce4 ordinary-only local control: 0.66%
+15:18:41 done ['ordctl', 'lorenz5', 'lorenz10', 'nce4']

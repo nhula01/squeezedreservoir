@@ -480,6 +480,21 @@ def sme_numbers():
     axs[0].legend(frameon=False, fontsize=5)
     fig.savefig(os.path.join(FIG, 'figS_sme.pdf'), bbox_inches='tight'); plt.close(fig)
 
+def ps_task(tag):
+    """Continuous-phase squeezing at the best re-fabricated device (rev_ps.py sqfix/sqfix2, decomp, ordctl), checked losses:
+    c0 re-fabricated device; fixed squeezing on it (device fixed); codesign squeezing-type knobs + local device redesign (best
+    of decomp 'sq' and sqjoint); ordctl the same local redesign with the knobs off; net codesign against the better of c0 and
+    ordctl; cr, all, kn where available. Gains in %."""
+    d = ld(f'rev_ps_{tag}.npz')
+    if d is None or 'sqfix_chk' not in d.files: return None
+    c = lambda k: float(d[k][-1][0]) if k in d.files else None
+    c0 = c('chk0'); cod = [x for x in (c('dec_sq_chk'), c('sqjoint_chk')) if x is not None]; Lo = c('dec_ord_chk')
+    r = dict(d=d, c0=c0, fixed=max(0.0, pc(c('sqfix_chk'), c0)), codesign=max(0.0, pc(min(cod), c0)) if cod else None,
+             ordctl=max(0.0, pc(Lo, c0)) if Lo is not None else None)
+    r['net'] = max(0.0, pc(min(cod), min(c0, Lo))) if cod and Lo is not None else None
+    for k, key in (('cr', 'dec_cr_chk'), ('all', 'chk_joint'), ('kn', 'dec_kn_chk')): r[k] = max(0.0, pc(c(key), c0)) if c(key) is not None else None
+    return r
+
 def hard_rows():
     """Difficulty ladders (rev_hard.py, rev_hard_conv.py, rev_hard_mg20b.py) with level 0 from rev_bounds2: per level the best
     ordinary device found by any search, the squeezing gain searched on that device, and the best squeezed device found by any
@@ -513,7 +528,7 @@ def hard_rows():
                 k = int(np.argmin([p[0] for p in pairs])); on_best = pc(pairs[k][1], pairs[k][0]); task = LADDER[tag][1]()
             Lo, nro = min(ords); Ls = min(sqs)
             rows.append(dict(key=key, name=nm_, par=par, lev=lev, tag=tag, nr=nro, ols=ols10(task), on_best=max(0.0, on_best),
-                             best=max(0.0, pc(Ls, Lo)), evals=evals))
+                             best=max(0.0, pc(Ls, Lo)), evals=evals, ps=ps_task(tag)))
     return rows
 
 def hard_numbers(rows):
@@ -528,69 +543,104 @@ def hard_numbers(rows):
     m('hdBestMax', '%.0f' % max(r['best'] for r in rows)); m('hdN', str(len(rows)))
     nr = np.array([r['nr'] for r in rows]); on = np.array([r['on_best'] for r in rows])
     from scipy.stats import spearmanr
-    rho = spearmanr(nr, on).correlation; m('hdRho', '%.2f' % rho)
+    rho = spearmanr(nr, on).correlation; m('hdRho', ('%.2f' % rho).replace('-', r'\ensuremath{-}'))
     if 'mg20' in T_:
         h = ld('rev_hard_mg20.npz'); m('hdMgFirst', '%.0f' % pc(float(h['chk'][-1][0]), float(h['chk0'][-1][0]))); m('hdMgRe', '%.2f' % h['sq_best'][7])
         m('hdMgEvals', '%d' % T_['mg20']['evals'])
-    L = [r'\begin{tabular}{llcccc}', r'\toprule', r'task & level & NRMSE, linear regression & NRMSE, re-fabricated & squeezing on it (\%) & best squeezed vs.\ best re-fabricated (\%)\\', r'\midrule']
+    P = [r for r in rows if r['ps'] is not None and r['ps']['net'] is not None]
+    if P:
+        for r in P:
+            m('hdFix' + tg(r['tag']), '%.1f' % r['ps']['fixed']); m('hdCod' + tg(r['tag']), '%.1f' % r['ps']['net']); m('hdCtl' + tg(r['tag']), '%.1f' % r['ps']['ordctl'])
+        m('hdFixMax', '%.1f' % max(r['ps']['fixed'] for r in P)); m('hdCodMax', '%.1f' % max(r['ps']['net'] for r in P))
+        m('hdCtlMax', '%.1f' % max(r['ps']['ordctl'] for r in P)); m('hdPsN', str(len(P)))
+        m('hdRhoFix', r'\ensuremath{%+.2f}'.replace('+', '') % spearmanr([r['nr'] for r in P], [r['ps']['fixed'] for r in P]).correlation)
+        m('hdRhoCod', r'\ensuremath{%+.2f}'.replace('+', '') % spearmanr([r['nr'] for r in P], [r['ps']['net'] for r in P]).correlation)
+        hp = [r for r in P if r['nr'] > 0.5]
+        m('hdHardFix', '%.1f' % max(r['ps']['fixed'] for r in hp)); m('hdHardCod', '%.1f' % max(r['ps']['net'] for r in hp))
+        big = [r for r in P if r['ps']['net'] >= 3]; m('hdCodBig', W.get(len(big), str(len(big)))); m('hdCodBigMin', '%.1f' % min(r['ps']['net'] for r in big))
+        m('hdCodBigMax', '%.1f' % max(r['ps']['net'] for r in big)); m('hdPsNw', W.get(len(P), str(len(P))))
+        m('hdNoGain', ', '.join(r['tag'] for r in P if r['ps']['net'] < 1))
+    f1 = lambda v: '--' if v is None else '%.1f' % v
+    L = [r'\begin{tabular}{llccccc}', r'\toprule', r' & & \multicolumn{2}{c}{NRMSE} & \multicolumn{3}{c}{loss reduction by squeezing (\%)}\\',
+         r'\cmidrule(lr){3-4}\cmidrule(lr){5-7}',
+         r'task & level & linear regression & re-fabricated & $\phi_d\in\{0,\pi/2\}$ & continuous phase & designed with the device\\', r'\midrule']
     prev = None
     for r in rows:
         lab = (r['name'] if r['key'] != prev else ''); prev = r['key']
-        lev = ('%s %d' % (r['par'], r['lev'])) if r['par'] else '--'
-        L.append(r'%s & %s & %.2f & %.3f & %.2f & %.1f\\' % (lab, lev, r['ols'], r['nr'], r['on_best'], r['best']))
+        lev = ('%s %d' % (r['par'], r['lev'])) if r['par'] else '--'; ps = r['ps'] or {}
+        L.append(r'%s & %s & %.2f & %.3f & %.1f & %s & %s\\' % (lab, lev, r['ols'], r['nr'], r['on_best'], f1(ps.get('fixed')), f1(ps.get('net'))))
     L += [r'\bottomrule', r'\end{tabular}']; open(os.path.join(PAPER, 'hardtable.tex'), 'w').write('\n'.join(L))
     fig, ax = plt.subplots(figsize=(4.2, 2.8))
     for key, mk, col in (('lorenz', 'o', '#264653'), ('mg', 's', '#e76f51'), ('nce', '^', '#2a9d8f'), ('narma', 'D', '#8ab17d'), ('laser', 'v', '0.5')):
         rr = [r for r in rows if r['key'] == key]
         if not rr: continue
-        x = [r['nr'] for r in rr]; ax.plot(x, [r['on_best'] for r in rr], mk, color=col, ms=4, lw=0, label=rr[0]['name'].replace('--', '–'))
-        ax.plot(x, [r['best'] for r in rr], mk, mfc='none', color=col, ms=6, lw=0)
+        x = [r['nr'] for r in rr]; y1 = [(r['ps'] or {}).get('fixed') or 0 for r in rr]; y2 = [(r['ps'] or {}).get('net') or 0 for r in rr]
+        ax.plot(x, y1, mk, color=col, ms=4, lw=0, label=rr[0]['name'].replace('--', '–'))
+        ax.plot(x, y2, mk, mfc='none', color=col, ms=6, lw=0)
+        ax.plot(x, [r['on_best'] for r in rr], '_', color=col, ms=5, lw=0)
         if len(rr) > 1:
-            for r in rr: ax.annotate(str(r['lev']), (r['nr'], max(r['on_best'], r['best'])), xytext=(4, 3), textcoords='offset points', fontsize=5.5, color=col)
+            for r, a_, b_ in zip(rr, y1, y2): ax.annotate(str(r['lev']), (r['nr'], max(a_, b_)), xytext=(4, 3), textcoords='offset points', fontsize=5.5, color=col)
     ax.set_xlabel('held-out NRMSE of the re-fabricated device'); ax.set_ylabel('loss reduction by squeezing (%)'); ax.set_yscale('symlog', linthresh=1)
-    ax.set_ylim(-0.2, 40); ax.legend(frameon=False, fontsize=6); ax.axhline(0, color='k', lw=0.4)
-    ax.text(0.98, 0.97, 'filled: squeezing on the best re-fabricated device\nopen: best squeezed device found, vs. best re-fabricated', transform=ax.transAxes, ha='right', va='top', fontsize=5.5)
+    ax.set_ylim(-0.2, 40); ax.legend(frameon=False, fontsize=6, loc='center', bbox_to_anchor=(0.45, 0.4)); ax.axhline(0, color='k', lw=0.4)
+    ax.set_yticks([0, 1, 10]); ax.set_yticklabels(['0', '1', '10'])
+    ax.text(0.98, 0.97, 'filled: on the re-fabricated device, continuous phase\nopen: designed with the device (net of control)\ndash: drive phase 0 or $\\pi/2$ only', transform=ax.transAxes, ha='right', va='top', fontsize=5.5)
     fig.savefig(os.path.join(FIG, 'figS_hard.pdf'), bbox_inches='tight'); plt.close(fig)
 
 def ps_numbers():
-    """Phase-sensitive knobs at and on the way to the re-fabricated optimum (rev_ps.py) -> pstable.tex, figS_ps.pdf, macros."""
-    tasks = [t for t in ('nce', 'narma', 'lorenz', 'mg', 'laser', 'mg20') if ld(f'rev_ps_{t}.npz') is not None and 'dec_cr_chk' in ld(f'rev_ps_{t}.npz').files]
+    """Phase-sensitive terms at and on the way to the re-fabricated optimum (rev_ps.py) -> pstable.tex, figS_ps.pdf, macros."""
+    tasks = [t for t in ('nce', 'narma', 'lorenz', 'mg', 'laser', 'mg20') if ps_task(t) is not None and ps_task(t)['cr'] is not None]
     if not tasks: return
     nm = dict(NM, mg20='Mackey–Glass (20 steps)'); U2 = dict(U, mg20='MGTWENTY')
-    rows = {}
-    for t in tasks:
-        d = ld(f'rev_ps_{t}.npz'); c0 = float(d['chk0'][-1][0]); c = lambda k: float(d[k][-1][0])
-        rows[t] = dict(fixed=max(0, pc(c('dec_kn_chk'), c0)), ordonly=max(0, pc(c('dec_ord_chk'), c0)), sq=max(0, pc(c('dec_sq_chk'), c0)),
-                       cr=max(0, pc(c('dec_cr_chk'), c0)), all=max(0, pc(c('chk_joint'), c0)), d=d)
-        r = rows[t]; u = U2[t]
-        for k in ('fixed', 'ordonly', 'sq', 'cr', 'all'): m('ps' + k.capitalize() + u, '%.1f' % r[k])
-        m('psBestSq' + u, '%.1f' % max(r['sq'], r['all'] if r['d']['joint_trace'] is not None else 0))
-        F = d['first']; m('psFirst' + u, '%.1f' % max(0, -100 * F[:, 2].min()))
-    m('psFixedMax', '%.1f' % max(r['fixed'] for r in rows.values())); m('psOrdMax', '%.1f' % max(r['ordonly'] for r in rows.values()))
-    m('psSqMin', '%.1f' % min(r['sq'] for t, r in rows.items() if t != 'narma')); m('psSqMax', '%.1f' % max(r['sq'] for r in rows.values()))
-    m('psCrMax', '%.0f' % max(r['cr'] for r in rows.values()))
-    L = [r'\begin{tabular}{lccccc}', r'\toprule', r'task & knobs, device fixed & ordinary only (control) & squeezing-type knobs + device & counter-rotating + device & all knobs + device\\', r'\midrule']
-    for t, r in rows.items(): L.append(nm[t].replace('–', '--') + ' & %.1f & %.1f & %.1f & %.1f & %.1f\\\\' % (r['fixed'], r['ordonly'], r['sq'], r['cr'], r['all']))
+    rows = {t: ps_task(t) for t in tasks}
+    for t, r in rows.items():
+        u = U2[t]
+        for k in ('fixed', 'codesign', 'ordctl', 'net', 'cr', 'all', 'kn'): m('ps' + k.capitalize() + u, '%.1f' % r[k])
+        F = r['d']['first']; m('psFirst' + u, '%.1f' % max(0, -100 * F[:, 2].min()))
+        b = r['d']['sqfix_best'] if 'sqfix_best' in r['d'].files else None
+        if b is not None:
+            m('psFixLam' + u, '%.2f' % b[6]); m('psFixRe' + u, '%.2f' % b[10]); m('psFixR' + u, '%.2f' % (0.5 * np.arctanh(b[6])))
+            m('psFixNmax' + u, '%.1f' % b[14])
+    core = [t for t in rows if t != 'narma']
+    def bst(tr): tr = np.asarray(tr); ok = tr[:, 14] <= 2.5; return tr[np.where(ok)[0][tr[ok, 12].argmin()]]
+    B = [bst(rows[t]['d']['dec_sq']) for t in core]
+    m('psCodRMax', '%.2f' % max(0.5 * np.arctanh(b[6]) for b in B)); m('psCodReMax', '%.2f' % max(b[10] for b in B))
+    m('psFixedMax', '%.1f' % max(r['fixed'] for r in rows.values())); m('psOrdMax', '%.1f' % max(r['ordctl'] for r in rows.values()))
+    m('psCodMin', '%.1f' % min(rows[t]['codesign'] for t in core)); m('psCodMax', '%.1f' % max(r['codesign'] for r in rows.values()))
+    m('psNetMin', '%.1f' % min(rows[t]['net'] for t in core)); m('psNetMax', '%.1f' % max(r['net'] for r in rows.values()))
+    m('psCrMax', '%.0f' % max(r['cr'] for r in rows.values())); m('psKnMax', '%.1f' % max(r['kn'] for r in rows.values()))
+    if 'narma' in rows: m('psNarmaMax', '%.1f' % max(rows['narma'][k] for k in ('fixed', 'kn', 'codesign', 'cr', 'all')))
+    pg = []
+    for t in ('nce', 'narma', 'lorenz'):
+        d = rows[t]['d'] if t in rows else None
+        if d is None: continue
+        for i in range(3):
+            if 'path_%d' % i in d.files: p = d['path_%d' % i]; pg.append(pc(p[2], p[1])); assert p[2] > float(d['L0'][0])
+    if pg: m('psPathMin', '%.0f' % min(pg)); m('psPathMax', '%.0f' % max(pg))
+    L = [r'\begin{tabular}{lcccccc}', r'\toprule', r' & \multicolumn{2}{c}{device fixed} & \multicolumn{4}{c}{device redesigned locally}\\',
+         r'\cmidrule(lr){2-3}\cmidrule(lr){4-7}',
+         r'task & squeezing & all terms & no terms (control) & squeezing & counter-rotating & all terms\\', r'\midrule']
+    for t, r in rows.items(): L.append(nm[t].replace('–', '--') + ' & %.1f & %.1f & %.1f & %.1f & %.1f & %.1f\\\\' % (r['fixed'], r['kn'], r['ordctl'], r['codesign'], r['cr'], r['all']))
     L += [r'\bottomrule', r'\end{tabular}']; open(os.path.join(PAPER, 'pstable.tex'), 'w').write('\n'.join(L))
     fig, axs = plt.subplots(1, 2, figsize=(7.2, 2.6), gridspec_kw=dict(wspace=0.35, width_ratios=[1, 1.5]))
     ax = axs[0]
     for t, col in (('nce', '#2a9d8f'), ('narma', '#8ab17d'), ('lorenz', '#264653')):
         if t not in rows: continue
         d = rows[t]['d']; L0 = float(d['L0'][0]); P_ = [d['path_%d' % i] for i in range(3) if 'path_%d' % i in d.files]
-        kb = float(rows[t]['d']['chk_knob'][-1][0]) / float(d['chk0'][-1][0]) * L0
+        kb = min(float(d[k][-1][0]) for k in ('chk_knob', 'dec_kn_chk', 'sqfix_chk') if k in d.files) / float(d['chk0'][-1][0]) * L0
         s_ = [p[0] for p in P_] + [1.0]; yo = [p[1] / L0 for p in P_] + [1.0]; yk = [p[2] / L0 for p in P_] + [min(kb, L0) / L0]
         ax.plot(s_, yo, 'o--', color=col, ms=3, lw=0.8); ax.plot(s_, yk, 's-', color=col, ms=3, lw=1.0, label=NM[t])
     ax.axhline(1, color='k', lw=0.5, ls=':'); ax.set_yscale('log'); ax.set_xlabel('position between tuned base (0) and re-fabricated optimum (1)', fontsize=6.5)
     ax.set_ylabel('loss / re-fabricated optimum'); ax.legend(frameon=False, fontsize=5.5); lab(ax, 'a')
-    ax.text(0.03, 0.04, 'dashed: ordinary device\nsolid: + phase-sensitive knobs', transform=ax.transAxes, fontsize=5.5)
-    ax = axs[1]; keys = [('fixed', 'knobs, device fixed', '#9fb8c7'), ('ordonly', 'ordinary parameters only (control)', '0.6'),
-                         ('sq', 'squeezing-type knobs + device', '#e76f51'), ('cr', 'counter-rotating coupling + device', '#b5838d')]
+    ax.text(0.97, 0.62, 'dashed: ordinary device\nsolid: + phase-sensitive terms', transform=ax.transAxes, fontsize=5.5, ha='right')
+    ax = axs[1]; keys = [('fixed', 'squeezing, device fixed', '#9fb8c7'), ('ordctl', 'local redesign, no terms (control)', '0.6'),
+                         ('codesign', 'squeezing + local redesign', '#e76f51'), ('cr', 'counter-rotating coupling + local redesign', '#b5838d')]
     w = 0.2
     for j, (k, lb, col) in enumerate(keys):
         ax.bar(np.arange(len(rows)) + (j - 1.5) * w, [rows[t][k] for t in rows], w, color=col, label=lb, edgecolor='k', lw=0.3)
-    short = dict(nce='channel eq.', narma='NARMA10', lorenz='Lorenz-63', mg='Mackey–\nGlass', laser='laser', mg20='Mackey–Glass\n20 steps')
+    short = dict(nce='channel\neq.', narma='NARMA10', lorenz='Lorenz-63', mg='Mackey–\nGlass', laser='laser', mg20='Mackey–Glass\n20 steps')
     ax.set_xticks(range(len(rows))); ax.set_xticklabels([short[t] for t in rows], fontsize=6)
-    ax.set_ylabel('loss reduction at the re-fabricated\noptimum (%)'); ax.legend(frameon=False, fontsize=5.5); lab(ax, 'b')
+    ax.set_ylabel('loss reduction at the re-fabricated\noptimum (%)'); ax.legend(frameon=False, fontsize=5.5, loc='upper left', ncol=2, bbox_to_anchor=(0, 1.2)); lab(ax, 'b')
+    ax.set_ylim(0, 28)
     fig.savefig(os.path.join(FIG, 'figS_ps.pdf'), bbox_inches='tight'); plt.close(fig)
 
 if __name__ == '__main__':
